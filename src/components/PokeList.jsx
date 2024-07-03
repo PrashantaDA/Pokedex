@@ -13,10 +13,12 @@ const PokeList = () => {
 	const [offset, setOffset] = useState(0);
 	const [loading, setLoading] = useState(false);
 	const [initialLoading, setInitialLoading] = useState(true);
+	const [error, setError] = useState(null);
 	const cache = useRef({});
 
 	const getAllPokemons = async (loadMore = false) => {
 		setLoading(true);
+		setError(null);
 		const limit = 20;
 		const cacheKey = `pokemons_${offset}`;
 
@@ -38,12 +40,13 @@ const PokeList = () => {
 
 			cache.current[cacheKey] = newPokemons;
 
-			setAllPokemons((prev) => (loadMore ? [...prev, ...newPokemons] : newPokemons));
+			setAllPokemons((prev) => (loadMore ? [...prev, ...newPokemons] : [...prev, ...newPokemons]));
 			setOffset((prev) => prev + limit);
 			setLoading(false);
 			setInitialLoading(false);
 		} catch (error) {
 			console.error("Error fetching Pokémon data:", error);
+			setError("Failed to fetch Pokémon data. Please try again later.");
 			setLoading(false);
 			setInitialLoading(false);
 		}
@@ -78,6 +81,12 @@ const PokeList = () => {
 				searchTerm={searchTerm}
 				setSearchTerm={setSearchTerm}
 			/>
+			{error && (
+				<div className="error-message">
+					<div>{error}</div>
+					<button onClick={() => getAllPokemons()}>Retry</button>
+				</div>
+			)}
 			<div className="poke-container">
 				<div className="all-container">
 					{filteredPokemons.map((pokemon) => (
@@ -85,7 +94,7 @@ const PokeList = () => {
 							key={pokemon.id}
 							id={pokemon.id.toString().padStart(3, "0")}
 							name={pokemon.name}
-							image={pokemon.sprites.other.dream_world.front_default || pokemon.sprites.front_default}
+							image={pokemon.sprites.other.dream_world.front_default}
 							type={pokemon.types[0].type.name}
 							weight={pokemon.weight}
 							height={pokemon.height}
