@@ -1,8 +1,15 @@
-# React + Vite
+## Pokedex App
+This project is a simple Pokedex application built using React, Sass, and the PokeAPI.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Features
+View Pokemon: Browse through a list of Pokemon with their images and basic information.
+Search: Search for specific Pokemon by name or ID.
+Details: View detailed information about each Pokemon, including stats and abilities.
 
-Currently, two official plugins are available:
+## Technologies Used
+React: Front-end JavaScript library for building user interfaces.
+Sass: CSS extension language to make styling more maintainable and readable.
+PokeAPI: RESTful API to fetch Pokemon data such as names, abilities, and images.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Live Demo
+[View Here: ](https://oakedex.netlify.app/)
