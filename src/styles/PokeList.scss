@@ -1,0 +1,54 @@
+.app-container {
+	width: 100%;
+	min-height: 100vh;
+	background: linear-gradient(115deg, #f0f8ff 48%, #f3533b 48% 55%, #fb7248 55%);
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	padding: 20px;
+	box-sizing: border-box;
+}
+
+.poke-container {
+	width: 100%;
+	max-width: 1200px;
+	background: rgba(255, 255, 255, 0.9);
+	border-radius: 10px;
+	padding: 20px;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+	overflow-y: auto;
+}
+
+.all-container {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+	gap: 20px;
+}
+
+.loading {
+	text-align: center;
+	padding: 20px;
+	font-size: 18px;
+	font-weight: bold;
+	color: #333;
+}
+
+button {
+	display: block;
+	width: 200px;
+	margin: 20px auto;
+	padding: 10px;
+	font-size: 16px;
+	font-weight: bold;
+	color: #fff;
+	background: #fb7248;
+	border: none;
+	border-radius: 10px;
+	cursor: pointer;
+	transition: background 0.3s ease;
+
+	&:hover {
+		background: #f3533b;
+	}
+}
