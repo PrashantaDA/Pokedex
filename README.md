@@ -3,7 +3,7 @@ This project is a simple Pokedex application built using React, Sass, and the Po
 
 ## Features
 View Pokemon: Browse through a list of Pokemon with their images and basic information.
-Search: Search for specific Pokemon by name or ID.
+Search: Search for specific Pokemon by name.
 Details: View detailed information about each Pokemon, including stats and abilities.
 
 ## Technologies Used
