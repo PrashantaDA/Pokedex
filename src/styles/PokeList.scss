@@ -21,6 +21,10 @@
 }
 
 .progress-indicator {
+	position: fixed;
+	bottom: 20px;
+	left: 10px;
+	z-index: 9999;
 	text-align: center;
 	padding: 8px 16px;
 	background: rgba(255, 255, 255, 0.1);
@@ -267,8 +271,7 @@
 	}
 
 	.progress-indicator {
-		font-size: 0.8rem;
-		padding: 6px 12px;
+		display: none;
 	}
 
 	.pokemon-grid {
