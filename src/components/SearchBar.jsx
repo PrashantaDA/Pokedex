@@ -1,42 +1,51 @@
 /* eslint-disable react/prop-types */
-// SearchBar Component
-import { useState } from "react";
+import { useState, useCallback } from "react";
+import { debounce } from "../utils/debounce";
 import "../styles/SearchBar.scss";
 
 const SearchBar = ({ onSearch }) => {
-	const [searchId, setSearchId] = useState("");
+	const [inputValue, setInputValue] = useState("");
+	const [isFocused, setIsFocused] = useState(false);
 
-	const handleSubmit = (e) => {
-		e.preventDefault();
-		if (searchId.trim()) {
-			onSearch(searchId.trim());
-		}
+	// Debounced search function
+	const debouncedSearch = useCallback(
+		debounce((value) => {
+			onSearch(value);
+		}, 300),
+		[onSearch]
+	);
+
+	const handleInputChange = (e) => {
+		const value = e.target.value;
+		setInputValue(value);
+		debouncedSearch(value);
 	};
 
 	const handleClear = () => {
-		setSearchId("");
+		setInputValue("");
 		onSearch("");
 	};
 
 	return (
 		<form
 			className="search-bar"
-			onSubmit={handleSubmit}
+			onSubmit={(e) => e.preventDefault()}
 		>
-			<div className="search-icon">🔍</div>
 			<input
-				type="number"
-				value={searchId}
-				onChange={(e) => setSearchId(e.target.value)}
-				placeholder="Search Pokémon by ID (1-151)..."
-				min="1"
-				max="151"
+				type="text"
+				value={inputValue}
+				onChange={handleInputChange}
+				onFocus={() => setIsFocused(true)}
+				onBlur={() => setIsFocused(false)}
+				placeholder="Search Pokémon by name or ID..."
+				className={isFocused ? "focused" : ""}
 			/>
-			{searchId && (
+			{inputValue && (
 				<button
 					type="button"
 					className="clear-button"
 					onClick={handleClear}
+					aria-label="Clear search"
 				>
 					×
 				</button>

@@ -2,12 +2,14 @@
 import { useState, useEffect } from "react";
 import PokemonCard from "./PokemonCard";
 import Modal from "./Modal";
+import SearchBar from "./SearchBar";
 import "../styles/PokeList.scss";
 
 const POKEMON_PER_PAGE = 18; // Updated to show 18 Pokémon per page
 
 const PokeList = () => {
 	const [pokemon, setPokemon] = useState([]);
+	const [filteredPokemon, setFilteredPokemon] = useState([]);
 	const [selectedPokemon, setSelectedPokemon] = useState(null);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
@@ -15,6 +17,8 @@ const PokeList = () => {
 	const [hasMore, setHasMore] = useState(true);
 	const [totalCount, setTotalCount] = useState(0);
 	const [showScrollTop, setShowScrollTop] = useState(false);
+	const [searchTerm, setSearchTerm] = useState("");
+	const [isSearching, setIsSearching] = useState(false);
 
 	// Handle scroll to top visibility
 	useEffect(() => {
@@ -36,6 +40,8 @@ const PokeList = () => {
 
 	// Fetch Pokémon with pagination
 	useEffect(() => {
+		if (isSearching) return; // Don't fetch paginated data while searching
+
 		const fetchPokemon = async () => {
 			try {
 				setLoading(true);
@@ -83,12 +89,103 @@ const PokeList = () => {
 		};
 
 		fetchPokemon();
-	}, [page]);
+	}, [page, isSearching]);
+
+	// Handle search
+	useEffect(() => {
+		const searchPokemon = async () => {
+			if (!searchTerm.trim()) {
+				setIsSearching(false);
+				setFilteredPokemon(pokemon);
+				return;
+			}
+
+			try {
+				setIsSearching(true);
+				setLoading(true);
+
+				// If searching by ID
+				if (!isNaN(searchTerm)) {
+					const id = parseInt(searchTerm);
+					if (id > 0) {
+						const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
+						if (response.ok) {
+							const data = await response.json();
+							const pokemonData = {
+								id: data.id,
+								name: data.name,
+								image: data.sprites.other["official-artwork"].front_default || data.sprites.front_default,
+								type: data.types[0].type.name,
+								height: data.height,
+								weight: data.weight,
+								stats: data.stats.map((stat) => stat.base_stat),
+								statsName: data.stats.map((stat) => stat.stat.name),
+								abilities: data.abilities.map((ability) => ability.ability.name),
+							};
+							setFilteredPokemon([pokemonData]);
+							setTotalCount(1);
+						} else {
+							setFilteredPokemon([]);
+							setTotalCount(0);
+						}
+					} else {
+						setFilteredPokemon([]);
+						setTotalCount(0);
+					}
+				} else {
+					// If searching by name
+					const response = await fetch(`https://pokeapi.co/api/v2/pokemon?limit=10000`);
+					const data = await response.json();
+					const searchTermLower = searchTerm.toLowerCase();
+					const matchingPokemon = data.results.filter((poke) => poke.name.toLowerCase().includes(searchTermLower));
+
+					if (matchingPokemon.length > 0) {
+						const pokemonData = await Promise.all(
+							matchingPokemon.map(async (pokemon) => {
+								const res = await fetch(pokemon.url);
+								const pokemonDetails = await res.json();
+								return {
+									id: pokemonDetails.id,
+									name: pokemonDetails.name,
+									image: pokemonDetails.sprites.other["official-artwork"].front_default || pokemonDetails.sprites.front_default,
+									type: pokemonDetails.types[0].type.name,
+									height: pokemonDetails.height,
+									weight: pokemonDetails.weight,
+									stats: pokemonDetails.stats.map((stat) => stat.base_stat),
+									statsName: pokemonDetails.stats.map((stat) => stat.stat.name),
+									abilities: pokemonDetails.abilities.map((ability) => ability.ability.name),
+								};
+							})
+						);
+						setFilteredPokemon(pokemonData);
+						setTotalCount(pokemonData.length);
+					} else {
+						setFilteredPokemon([]);
+						setTotalCount(0);
+					}
+				}
+				setError(null);
+			} catch (err) {
+				setError("Failed to search Pokémon. Please try again.");
+				setFilteredPokemon([]);
+				setTotalCount(0);
+			} finally {
+				setLoading(false);
+			}
+		};
+
+		searchPokemon();
+	}, [searchTerm, pokemon]);
 
 	const handleLoadMore = () => {
 		if (!loading && hasMore) {
 			setPage((prev) => prev + 1);
 		}
+	};
+
+	const handleSearch = (term) => {
+		setSearchTerm(term);
+		setPage(1); // Reset to first page when searching
 	};
 
 	if (error) {
@@ -100,6 +197,7 @@ const PokeList = () => {
 					onClick={() => {
 						setError(null);
 						setPage(1);
+						setIsSearching(false);
 					}}
 				>
 					Try Again
@@ -110,11 +208,10 @@ const PokeList = () => {
 
 	return (
 		<div className="poke-list">
-			<div className="progress-indicator">
-				Loaded {pokemon.length} of {totalCount} Pokémon
-			</div>
+			<SearchBar onSearch={handleSearch} />
+			<div className="progress-indicator">{isSearching ? `Found ${filteredPokemon.length} matching Pokémon` : `Loaded ${filteredPokemon.length} of ${totalCount} Pokémon`}</div>
 			<div className="pokemon-grid">
-				{pokemon.map((poke) => (
+				{filteredPokemon.map((poke) => (
 					<PokemonCard
 						key={poke.id}
 						id={poke.id}
@@ -136,10 +233,10 @@ const PokeList = () => {
 						<div className="pokeball-middle"></div>
 						<div className="pokeball-bottom"></div>
 					</div>
-					<p className="loading-text">Loading more Pokémon...</p>
+					<p className="loading-text">{isSearching ? "Searching Pokémon..." : "Loading more Pokémon..."}</p>
 				</div>
 			)}
-			{hasMore && !loading && (
+			{hasMore && !loading && !isSearching && (
 				<div className="load-more-container">
 					<button
 						className="load-more-button"
