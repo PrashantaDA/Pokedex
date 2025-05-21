@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import PokemonCard from "./PokemonCard";
 import Modal from "./Modal";
 import SearchBar from "./SearchBar";
+import SortOptions from "./SortOptions";
 import "../styles/PokeList.scss";
 
 const POKEMON_PER_PAGE = 18; // Updated to show 18 Pokémon per page
@@ -19,6 +20,7 @@ const PokeList = () => {
 	const [showScrollTop, setShowScrollTop] = useState(false);
 	const [searchTerm, setSearchTerm] = useState("");
 	const [isSearching, setIsSearching] = useState(false);
+	const [sortBy, setSortBy] = useState("id-asc");
 
 	// Handle scroll to top visibility
 	useEffect(() => {
@@ -38,9 +40,36 @@ const PokeList = () => {
 		});
 	};
 
+	// Sort Pokemon
+	const sortPokemon = (pokemonList, sortType) => {
+		const [field, direction] = sortType.split("-");
+		return [...pokemonList].sort((a, b) => {
+			let comparison = 0;
+			if (field === "id") {
+				comparison = a.id - b.id;
+			} else if (field === "name") {
+				comparison = a.name.localeCompare(b.name);
+			} else if (field === "type") {
+				comparison = a.type.localeCompare(b.type);
+			} else if (field === "height") {
+				comparison = a.height - b.height;
+			} else if (field === "weight") {
+				comparison = a.weight - b.weight;
+			}
+			return direction === "asc" ? comparison : -comparison;
+		});
+	};
+
+	// Apply sorting when sortBy changes
+	useEffect(() => {
+		if (filteredPokemon.length > 0) {
+			setFilteredPokemon(sortPokemon(filteredPokemon, sortBy));
+		}
+	}, [sortBy]);
+
 	// Fetch Pokémon with pagination
 	useEffect(() => {
-		if (isSearching) return; // Don't fetch paginated data while searching
+		if (isSearching) return;
 
 		const fetchPokemon = async () => {
 			try {
@@ -49,12 +78,10 @@ const PokeList = () => {
 				const response = await fetch(`https://pokeapi.co/api/v2/pokemon?limit=${POKEMON_PER_PAGE}&offset=${offset}`);
 				const data = await response.json();
 
-				// Set total count on first load
 				if (page === 1) {
 					setTotalCount(data.count);
 				}
 
-				// Check if we have more Pokémon to load
 				setHasMore(offset + POKEMON_PER_PAGE < data.count);
 
 				const pokemonData = await Promise.all(
@@ -75,10 +102,14 @@ const PokeList = () => {
 					})
 				);
 
+				const sortedPokemon = sortPokemon(pokemonData, sortBy);
+
 				if (page === 1) {
-					setPokemon(pokemonData);
+					setPokemon(sortedPokemon);
+					setFilteredPokemon(sortedPokemon);
 				} else {
-					setPokemon((prev) => [...prev, ...pokemonData]);
+					setPokemon((prev) => [...prev, ...sortedPokemon]);
+					setFilteredPokemon((prev) => [...prev, ...sortedPokemon]);
 				}
 				setError(null);
 			} catch (err) {
@@ -89,7 +120,7 @@ const PokeList = () => {
 		};
 
 		fetchPokemon();
-	}, [page, isSearching]);
+	}, [page, isSearching, sortBy]);
 
 	// Handle search
 	useEffect(() => {
@@ -104,7 +135,6 @@ const PokeList = () => {
 				setIsSearching(true);
 				setLoading(true);
 
-				// If searching by ID
 				if (!isNaN(searchTerm)) {
 					const id = parseInt(searchTerm);
 					if (id > 0) {
@@ -133,7 +163,6 @@ const PokeList = () => {
 						setTotalCount(0);
 					}
 				} else {
-					// If searching by name
 					const response = await fetch(`https://pokeapi.co/api/v2/pokemon?limit=10000`);
 					const data = await response.json();
 					const searchTermLower = searchTerm.toLowerCase();
@@ -157,7 +186,8 @@ const PokeList = () => {
 								};
 							})
 						);
-						setFilteredPokemon(pokemonData);
+						const sortedPokemon = sortPokemon(pokemonData, sortBy);
+						setFilteredPokemon(sortedPokemon);
 						setTotalCount(pokemonData.length);
 					} else {
 						setFilteredPokemon([]);
@@ -175,7 +205,7 @@ const PokeList = () => {
 		};
 
 		searchPokemon();
-	}, [searchTerm, pokemon]);
+	}, [searchTerm, pokemon, sortBy]);
 
 	const handleLoadMore = () => {
 		if (!loading && hasMore) {
@@ -185,7 +215,11 @@ const PokeList = () => {
 
 	const handleSearch = (term) => {
 		setSearchTerm(term);
-		setPage(1); // Reset to first page when searching
+		setPage(1);
+	};
+
+	const handleSort = (sortType) => {
+		setSortBy(sortType);
 	};
 
 	if (error) {
@@ -208,7 +242,10 @@ const PokeList = () => {
 
 	return (
 		<div className="poke-list">
-			<SearchBar onSearch={handleSearch} />
+			<div className="search-sort-container">
+				<SearchBar onSearch={handleSearch} />
+				<SortOptions onSort={handleSort} />
+			</div>
 			<div className="progress-indicator">{isSearching ? `Found ${filteredPokemon.length} matching Pokémon` : `Loaded ${filteredPokemon.length} of ${totalCount} Pokémon`}</div>
 			<div className="pokemon-grid">
 				{filteredPokemon.map((poke) => (
