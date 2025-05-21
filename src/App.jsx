@@ -1,12 +1,15 @@
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import PokeList from "./components/PokeList";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 const App = () => {
 	return (
 		<>
 			<Header />
-			<PokeList />
+			<ErrorBoundary>
+				<PokeList />
+			</ErrorBoundary>
 			<Footer />
 		</>
 	);

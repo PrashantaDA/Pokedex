@@ -1,94 +1,289 @@
 // styles/PokeList.scss
-.app-container {
-	width: 100%;
-	min-height: 100vh;
-	background: linear-gradient(115deg, #f0f8ff 48%, #f3533b 48% 55%, #fb7248 55%);
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
+.poke-list {
 	padding: 20px;
-	box-sizing: border-box;
+	max-width: 1400px;
+	margin: 0 auto;
+	position: relative;
 }
 
-.poke-container {
-	width: 100%;
-	max-width: 1200px;
-	background: rgba(255, 255, 255, 0.9);
-	border-radius: 10px;
-	padding: 20px;
-	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-	overflow-y: auto;
-}
-
-.all-container {
-	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-	gap: 20px;
-}
-
-.loading {
+.progress-indicator {
 	text-align: center;
-	padding: 20px;
-	font-size: 18px;
-	font-weight: bold;
-	color: #333;
-}
-
-.loading-all {
-	text-align: center;
-	padding: 20px;
-	font-size: 18px;
-	font-weight: bold;
-	color: #333;
-}
-
-.error-message {
-	text-align: center;
-	padding: 10px 20px;
-	font-size: 16px;
-	font-weight: bold;
-	color: #d8000c;
-	background-color: #ffbaba;
-	border-radius: 10px;
+	color: #fff;
+	font-size: 1rem;
 	margin-bottom: 20px;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
+	padding: 10px;
+	background: rgba(0, 0, 0, 0.2);
+	border-radius: 8px;
+	backdrop-filter: blur(4px);
+}
 
-	button {
-		margin-top: 10px;
-		padding: 8px 16px;
-		font-size: 16px;
-		font-weight: bold;
+.pokemon-grid {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 24px;
+	padding: 20px 0;
+}
+
+.load-more-container {
+	display: flex;
+	justify-content: center;
+	margin: 40px 0;
+	padding: 20px;
+
+	.load-more-button {
+		position: relative;
+		padding: 14px 36px;
+		font-size: 1rem;
+		font-weight: 500;
+		letter-spacing: 0.5px;
 		color: #fff;
-		background: #d8000c;
-		border: none;
-		border-radius: 5px;
+		background: transparent;
+		border: 2px solid #ff0000;
+		border-radius: 8px;
 		cursor: pointer;
-		transition: background 0.3s ease;
+		transition: all 0.3s ease;
+		overflow: hidden;
+		z-index: 1;
+
+		&::before {
+			content: "";
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background: #ff0000;
+			transform: scaleX(0);
+			transform-origin: right;
+			transition: transform 0.3s ease;
+			z-index: -1;
+		}
 
 		&:hover {
-			background: #a40000;
+			color: #fff;
+			transform: translateY(-2px);
+
+			&::before {
+				transform: scaleX(1);
+				transform-origin: left;
+			}
+		}
+
+		&:active {
+			transform: translateY(0);
+		}
+
+		&:disabled {
+			opacity: 0.7;
+			cursor: not-allowed;
+			transform: none;
+			border-color: rgba(255, 0, 0, 0.5);
 		}
 	}
 }
 
-button {
-	display: block;
-	width: 200px;
-	margin: 10px auto;
-	padding: 10px;
-	font-size: 16px;
-	font-weight: bold;
-	color: #fff;
-	background: #fb7248;
-	border: none;
-	border-radius: 10px;
+.loading-container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	min-height: 60vh;
+	gap: 20px;
+
+	.pokeball-loader {
+		width: 60px;
+		height: 60px;
+		position: relative;
+		animation: bounce 1s infinite;
+
+		.pokeball-top {
+			position: absolute;
+			width: 100%;
+			height: 50%;
+			background: #ff0000;
+			border-radius: 30px 30px 0 0;
+			border: 3px solid #000;
+			border-bottom: none;
+		}
+
+		.pokeball-middle {
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			width: 20px;
+			height: 20px;
+			background: #fff;
+			border: 3px solid #000;
+			border-radius: 50%;
+			z-index: 2;
+		}
+
+		.pokeball-bottom {
+			position: absolute;
+			bottom: 0;
+			width: 100%;
+			height: 50%;
+			background: #fff;
+			border-radius: 0 0 30px 30px;
+			border: 3px solid #000;
+			border-top: none;
+		}
+	}
+
+	.loading-text {
+		color: #fff;
+		font-size: 1.5rem;
+		text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+		animation: pulse 1.5s infinite;
+	}
+}
+
+.error-container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	min-height: 60vh;
+	gap: 20px;
+
+	.error-message {
+		color: #ff4444;
+		font-size: 1.2rem;
+		text-align: center;
+		text-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+	}
+
+	.retry-button {
+		padding: 10px 20px;
+		background: rgba(255, 0, 0, 0.1);
+		border: 2px solid rgba(255, 0, 0, 0.3);
+		border-radius: 20px;
+		color: #fff;
+		font-size: 1rem;
+		cursor: pointer;
+		transition: all 0.3s ease;
+
+		&:hover {
+			background: rgba(255, 0, 0, 0.2);
+			transform: translateY(-2px);
+		}
+	}
+}
+
+.scroll-to-top {
+	position: fixed;
+	bottom: 100px;
+	right: 30px;
+	width: 45px;
+	height: 45px;
+	background: rgba(255, 0, 0, 0.2);
+	backdrop-filter: blur(4px);
+	border: 2px solid rgba(255, 0, 0, 0.3);
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 	cursor: pointer;
-	transition: background 0.3s ease;
+	opacity: 0;
+	visibility: hidden;
+	transition: all 0.3s ease;
+	z-index: 90;
+
+	&.visible {
+		opacity: 1;
+		visibility: visible;
+	}
 
 	&:hover {
-		background: #f3533b;
+		background: rgba(255, 0, 0, 0.3);
+		transform: translateY(-3px);
+	}
+
+	&:active {
+		transform: translateY(0);
+	}
+
+	svg {
+		width: 24px;
+		height: 24px;
+		fill: #fff;
+	}
+}
+
+@keyframes bounce {
+	0%,
+	100% {
+		transform: translateY(0);
+	}
+	50% {
+		transform: translateY(-20px);
+	}
+}
+
+@keyframes pulse {
+	0%,
+	100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.5;
+	}
+}
+
+@media (max-width: 1200px) {
+	.pokemon-grid {
+		grid-template-columns: repeat(2, 1fr);
+		gap: 20px;
+	}
+}
+
+@media (max-width: 768px) {
+	.poke-list {
+		padding: 10px;
+	}
+
+	.progress-indicator {
+		font-size: 0.9rem;
+		margin-bottom: 15px;
+	}
+
+	.pokemon-grid {
+		grid-template-columns: repeat(1, 1fr);
+		gap: 15px;
+		padding: 15px 0;
+	}
+
+	.load-more-container {
+		margin: 30px 0;
+		padding: 15px;
+
+		.load-more-button {
+			padding: 14px 28px;
+			font-size: 1rem;
+		}
+	}
+
+	.loading-container {
+		.pokeball-loader {
+			width: 40px;
+			height: 40px;
+		}
+
+		.loading-text {
+			font-size: 1.2rem;
+		}
+	}
+
+	.scroll-to-top {
+		bottom: 80px;
+		right: 20px;
+		width: 40px;
+		height: 40px;
+
+		svg {
+			width: 20px;
+			height: 20px;
+		}
 	}
 }

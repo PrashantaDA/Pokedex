@@ -1,31 +1,47 @@
 /* eslint-disable react/prop-types */
 // SearchBar Component
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import "../styles/SearchBar.scss";
-import { debounce } from "../utils/debounce";
 
-const SearchBar = ({ searchTerm, setSearchTerm }) => {
-	const [inputValue, setInputValue] = useState(searchTerm);
+const SearchBar = ({ onSearch }) => {
+	const [searchId, setSearchId] = useState("");
 
-	const debouncedSetSearchTerm = useCallback(debounce(setSearchTerm, 300), [setSearchTerm]);
+	const handleSubmit = (e) => {
+		e.preventDefault();
+		if (searchId.trim()) {
+			onSearch(searchId.trim());
+		}
+	};
 
-	useEffect(() => {
-		debouncedSetSearchTerm(inputValue);
-	}, [inputValue, debouncedSetSearchTerm]);
-
-	const handleChange = (e) => {
-		setInputValue(e.target.value);
+	const handleClear = () => {
+		setSearchId("");
+		onSearch("");
 	};
 
 	return (
-		<div className="search-bar">
+		<form
+			className="search-bar"
+			onSubmit={handleSubmit}
+		>
+			<div className="search-icon">🔍</div>
 			<input
-				type="text"
-				placeholder="Search Pokémon"
-				value={inputValue}
-				onChange={handleChange}
+				type="number"
+				value={searchId}
+				onChange={(e) => setSearchId(e.target.value)}
+				placeholder="Search Pokémon by ID (1-151)..."
+				min="1"
+				max="151"
 			/>
-		</div>
+			{searchId && (
+				<button
+					type="button"
+					className="clear-button"
+					onClick={handleClear}
+				>
+					×
+				</button>
+			)}
+		</form>
 	);
 };
 

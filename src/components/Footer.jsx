@@ -1,5 +1,4 @@
 import "../styles/Footer.scss";
-import BackToTop from "./BackToTop";
 
 const Footer = () => {
 	return (
@@ -20,7 +19,6 @@ const Footer = () => {
 				<p className="bg-circle-white">B</p>
 				<p>Back</p>
 			</div>
-			<BackToTop />
 		</footer>
 	);
 };
