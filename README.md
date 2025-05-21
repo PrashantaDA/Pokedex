@@ -1,6 +1,6 @@
 # Pokedex
 
-A modern, responsive Pokedex web application built with React that allows users to explore and learn about Pokemon. The application features a sleek dark theme design with smooth animations and interactive elements.
+A modern, responsive Pokedex web application built with React and Vite that allows users to explore and learn about Pokemon. The application features a sleek dark theme design with smooth animations and interactive elements.
 
 ## Features
 
@@ -27,6 +27,7 @@ A modern, responsive Pokedex web application built with React that allows users 
 ## Technologies Used
 
 - React.js
+- Vite for fast development and building
 - SCSS for styling
 - PokeAPI for Pokemon data
 - Modern JavaScript (ES6+)
@@ -63,12 +64,12 @@ yarn install
 4. Start the development server:
 
 ```bash
-npm start
+npm run dev
 # or
-yarn start
+yarn dev
 ```
 
-The application will be available at `http://localhost:3000`
+The application will be available at `http://localhost:5173`
 
 ## Project Structure
 
@@ -86,6 +87,21 @@ src/
 │   └── Modal.scss
 └── App.jsx           # Main application component
 ```
+
+## Available Scripts
+
+- `npm run dev` - Start the development server
+- `npm run build` - Build the app for production
+- `npm run preview` - Preview the production build locally
+- `npm run lint` - Run ESLint to check for code issues
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
 ## License
 
